@@ -1,3 +1,6 @@
+const fs = require('fs');
+const readline = require('readline');
+
 const { PublicKey } = require('@solana/web3.js')
 const {
     Token,
@@ -118,27 +121,39 @@ async function main() {
 
     console.log("Executing Swaps...")
 
-    const wallet_array = [
-        "2mjopv3aetJWammAfRHLQ5taeW71EzsVDo4bkMA6DNmruMAgePppDK9UHKbDGc39dYjVCBAzuWRCT9RWHoKZSdcL",
-        "4TCkT2SLdDVyKtU5MdXdiU7y6JR3WiyfxitVibQ5mgZL4WEnw5c3h84axZpZescw8jNsTn8ckqCMneFFLff93mfz"
-    ]
-    // const baseToken = new Token(TOKEN_PROGRAM_ID, new PublicKey("D8VCsDwkTBMTAcsBLF9UZ8vYD4U7FvcJp1fMi9n9QqhE"), tokenInfo.decimals, tokenInfo.symbol, tokenInfo.tokenName)
-    // const quoteToken = DEFAULT_TOKEN.WSOL
+    const walletArray = [];
 
-    const inputToken = quoteToken // WSOL
-    const outputToken = baseToken // custom token
-    const inputTokenAmount = new TokenAmount(inputToken, swapAmountInSOL * 10 ** 9)
-    const slippage = new Percent(1, 100)
-
-    wallet_array.forEach(async wallet => {
-        const res = await execSwap({
-            targetPool,
-            inputTokenAmount,
-            outputToken,
-            slippage,
-            wallet
-        })
+    const readInterface = readline.createInterface({
+        input: fs.createReadStream('wallets.txt'), // Specify the path to your file here
+        output: process.stdout,
+        console: false
     });
+
+    readInterface.on('line', function (line) {
+        walletArray.push(line);
+    });
+
+    readInterface.on('close', function () {
+        // const baseToken = new Token(TOKEN_PROGRAM_ID, new PublicKey("D8VCsDwkTBMTAcsBLF9UZ8vYD4U7FvcJp1fMi9n9QqhE"), tokenInfo.decimals, tokenInfo.symbol, tokenInfo.tokenName)
+        // const quoteToken = DEFAULT_TOKEN.WSOL
+
+        const inputToken = quoteToken // WSOL
+        const outputToken = baseToken // custom token
+        const inputTokenAmount = new TokenAmount(inputToken, swapAmountInSOL * 10 ** 9)
+        const slippage = new Percent(1, 100)
+
+        walletArray.forEach(async wallet => {
+            const res = await execSwap({
+                targetPool,
+                inputTokenAmount,
+                outputToken,
+                slippage,
+                wallet
+            })
+        });
+    });
+
+
 }
 
 
