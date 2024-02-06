@@ -16,6 +16,7 @@ const assert = require("assert")
 const {
     connection,
     makeTxVersion,
+    addLookupTableInfo
 } = require('./config.js')
 
 const {
@@ -82,8 +83,8 @@ async function execSwap(input) {
         connection,
         makeTxVersion,
         payer: myPublicKey,
-        innerTransactions
-        // addLookupTableInfo: addLookupTableInfo,
+        innerTransactions,
+        addLookupTableInfo: addLookupTableInfo,
     })
 
     const txids = [];

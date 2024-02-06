@@ -23,23 +23,34 @@ const {
     formatAmmKeysById
 } = require('./util.js')
 
+const prompt = require('prompt-sync')({ sigint: true });
+
 const BN = require('bn.js');
 
-require('dotenv').config()
+require('dotenv').config({ path: `.env.${process.env.NETWORK}` })
 
 // const secretKeyString = fs.readFileSync('./id.json', 'utf8');
 // const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
 // const keypair = solanaWeb3.Keypair.fromSecretKey(secretKey);
 
+console.log("...Token Info Input...")
+const amount = Number(prompt('amount(default: 10000): ')) || 10000;
+const decimals = Number(prompt('amount(default: 9): ')) || 9;
+const symbol = prompt('amount(default: "TMT"): ') || 'TMT';
+const tokenName = prompt('amount(default: "Test Mock Token"): ') || 'Test Mock Token';
+
 const tokenInfo = {
-    amount: 10000,
-    decimals: 9,
+    amount,
+    decimals,
     metadata: "",
-    symbol: "TMTQ",
-    tokenName: "Test Mock TokenQ"
+    symbol,
+    tokenName
 }
 
-async function main() {
+main(tokenInfo)
+
+async function main(tokenInfo) {
+    console.log('tokenInfo', tokenInfo, 'tokenInfo')
 
     console.log("Creating Token...")
     const mintAddress = await createToken(tokenInfo)
@@ -105,5 +116,4 @@ async function main() {
     });
 }
 
-main()
 

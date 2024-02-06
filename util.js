@@ -18,7 +18,8 @@ const {
 const {
     myKeyPair,
     connection,
-    makeTxVersion
+    makeTxVersion,
+    addLookupTableInfo
 } = require('./config')
 
 async function sendTx(
@@ -56,7 +57,7 @@ async function buildAndSendTx(innerSimpleV0Transaction, options) {
         makeTxVersion,
         payer: myKeyPair.publicKey,
         innerTransactions: innerSimpleV0Transaction,
-        // addLookupTableInfo: addLookupTableInfo,
+        addLookupTableInfo: addLookupTableInfo,
     })
 
     return await sendTx(connection, myKeyPair, willSendTx, options)
