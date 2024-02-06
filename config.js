@@ -1,25 +1,27 @@
-const { Connection, Keypair, PublicKey, clusterApiUrl } = require('@solana/web3.js')
+const {
+    Connection,
+    Keypair,
+    PublicKey,
+    clusterApiUrl
+} = require('@solana/web3.js')
 const bs58 = require('bs58')
 const {
     Currency,
-    LOOKUP_TABLE_CACHE,
     Token,
-    TOKEN_PROGRAM_ID,
     TxVersion,
+    TOKEN_PROGRAM_ID,
+    LOOKUP_TABLE_CACHE,
 } = require('@raydium-io/raydium-sdk')
 
-require('dotenv').config()
+require('dotenv').config({ path: `.env.${process.env.NETWORK}` })
 
-// mainnet
-// const connection = new Connection("https://mainnet.helius-rpc.com/?api-key=d6fef362-e3c9-414a-995e-95e6578bd8bc"); // helius
-// devnet
-const connection = new Connection("https://devnet.helius-rpc.com/?api-key=d6fef362-e3c9-414a-995e-95e6578bd8bc"); // helius
+const connection = new Connection(process.env.RPC_URL); // helius
 
 const myKeyPair = Keypair.fromSecretKey(new Uint8Array(bs58.decode(process.env.PRIVATE_KEY)));
 
 const makeTxVersion = TxVersion.V0;
 
-const addLookupTableInfo = LOOKUP_TABLE_CACHE // only mainnet. other = undefined
+const addLookupTableInfo = process.env.NETWORK === 'mainnet' ? LOOKUP_TABLE_CACHE : undefined;
 
 const CONFIG_MAINNET_PROGRAM_ID = {
     AMM_OWNER: new PublicKey('GThUX1Atko4tqhN2NaiTazWSeFWMuiUvfFnyJyUghFMJ'),

@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "deploy-dev": "NETWORK=devnet node main.js",
+    "deploy-main": "NETWORK=mainnet node main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,6 +19,7 @@
     "@solana/web3.js": "^1.89.1",
     "assert": "^2.1.0",
     "bn.js": "^5.2.1",
-    "dotenv": "^16.4.1"
+    "dotenv": "^16.4.1",
+    "prompt-sync": "^4.2.0"
   }
 }

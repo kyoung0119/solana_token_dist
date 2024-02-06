@@ -8,7 +8,7 @@ const {
     connection,
     // DEFAULT_TOKEN,
     makeTxVersion,
-} = require('./config.js')
+} = require('../config.js')
 const { buildAndSendTx } = require('./util')
 
 async function createMarket(input) {

@@ -19,7 +19,7 @@ const { createCreateMetadataAccountV3Instruction, PROGRAM_ID } = require('@metap
 const {
     connection,
     myKeyPair
-} = require('./config.js')
+} = require('../config.js')
 
 async function createToken(tokenInfo) {
     const lamports = await getMinimumBalanceForRentExemptMint(connection);

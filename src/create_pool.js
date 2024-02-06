@@ -11,7 +11,7 @@ const {
     COFNIG_MAINNET_PROGRAM_ID,
     CONFIG_DEVNET_PROGRAM_ID,
     myKeyPair,
-} = require('./config.js')
+} = require('../config.js')
 const {
     buildAndSendTx,
     getWalletTokenAccount,

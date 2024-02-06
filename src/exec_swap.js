@@ -16,7 +16,8 @@ const assert = require("assert")
 const {
     connection,
     makeTxVersion,
-} = require('./config.js')
+    addLookupTableInfo
+} = require('../config.js')
 
 const {
     getWalletTokenAccount,
@@ -82,8 +83,8 @@ async function execSwap(input) {
         connection,
         makeTxVersion,
         payer: myPublicKey,
-        innerTransactions
-        // addLookupTableInfo: addLookupTableInfo,
+        innerTransactions,
+        addLookupTableInfo: addLookupTableInfo,
     })
 
     const txids = [];
