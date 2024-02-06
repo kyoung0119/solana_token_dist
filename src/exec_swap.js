@@ -17,7 +17,7 @@ const {
     connection,
     makeTxVersion,
     addLookupTableInfo
-} = require('./config.js')
+} = require('../config.js')
 
 const {
     getWalletTokenAccount,

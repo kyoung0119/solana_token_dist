@@ -20,7 +20,7 @@ const {
     connection,
     makeTxVersion,
     addLookupTableInfo
-} = require('./config')
+} = require('../config')
 
 async function sendTx(
     connection,

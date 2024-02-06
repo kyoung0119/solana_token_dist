@@ -6,10 +6,10 @@ const {
     TOKEN_PROGRAM_ID
 } = require('@raydium-io/raydium-sdk')
 
-const { createToken } = require('./create_token.js')
-const { createMarket } = require('./create_market.js')
-const { createPool } = require('./create_pool.js')
-const { execSwap } = require('./exec_swap.js')
+const { createToken } = require('./src/create_token.js')
+const { createMarket } = require('./src/create_market.js')
+const { createPool } = require('./src/create_pool.js')
+const { execSwap } = require('./src/exec_swap.js')
 
 const {
     connection,
@@ -21,7 +21,7 @@ const {
     getWalletTokenAccount,
     sleepTime,
     formatAmmKeysById
-} = require('./util.js')
+} = require('./src/util.js')
 
 const prompt = require('prompt-sync')({ sigint: true });
 
