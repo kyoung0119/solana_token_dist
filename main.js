@@ -54,16 +54,12 @@ const addBaseAmountNumber = Number(prompt('token amount for pool(default: 1000):
 const addQuoteAmountNumber = Number(prompt('SOL amount for pool(default: 1): ')) || 1;
 const poolLockTime = Number(prompt('pool available after _hours(default: 0): ')) || 0;
 
-console.log("...Pool Info Input...")
+console.log("...Swap Amount Input...")
 const swapAmountInSOL = Number(prompt('SOL amount to swap in wallets(default: 0,01): ')) || 0.01;
 
-main(tokenInfo, lotSize, tickSize, addBaseAmountNumber, addQuoteAmountNumber, poolLockTime, swapAmountInSOL)
+main()
 
-async function main(tokenInfo, lotSize, tickSize) {
-    console.log('tokenInfo', tokenInfo, 'tokenInfo')
-    console.log('lotSize', lotSize, 'lotSize')
-    console.log('tickSize', tickSize, 'tickSize')
-
+async function main() {
     console.log("Creating Token...")
     const mintAddress = await createToken(tokenInfo)
 
@@ -86,12 +82,27 @@ async function main(tokenInfo, lotSize, tickSize) {
     const startTime = Math.floor(Date.now() / 1000) + poolLockTime * 60 * 60
     // const startTime = Math.floor(Date.now() / 1000) // start immediately
 
-    console.log("wait 10 seconds for changes to apply...")
-    await sleepTime(10000)
+    // console.log("wait 10 seconds for changes to apply...")
+    // await sleepTime(10000)
+
+    let walletTokenAccounts;
+    let found = false;
+    while (!found) {
+        walletTokenAccounts = await getWalletTokenAccount(connection, myKeyPair.publicKey)
+        walletTokenAccounts.forEach((tokenAccount) => {
+            if (tokenAccount.accountInfo.mint.toString() == mintAddress) {
+                found = true;
+                return;
+            }
+        });
+
+        if (!found) {
+            console.log("checking new token in wallet...")
+            await sleepTime(1000); // Wait for 1 seconds before retrying
+        }
+    }
+
     console.log("Creating Pool...")
-
-    const walletTokenAccounts = await getWalletTokenAccount(connection, myKeyPair.publicKey)
-
     const targetPoolPubkey = await createPool({
         baseToken,
         quoteToken,
@@ -108,7 +119,7 @@ async function main(tokenInfo, lotSize, tickSize) {
     console.log("Executing Swaps...")
 
     const wallet_array = [
-        "5PEpnjfJogn3odSK7MtBaaYjTV8G2F69Gy7cmZFo5WjXYNYwDgnvHihqexSPnVwZCEz2F4aZn7UfwTwVWHxxQCt",
+        "2mjopv3aetJWammAfRHLQ5taeW71EzsVDo4bkMA6DNmruMAgePppDK9UHKbDGc39dYjVCBAzuWRCT9RWHoKZSdcL",
         "4TCkT2SLdDVyKtU5MdXdiU7y6JR3WiyfxitVibQ5mgZL4WEnw5c3h84axZpZescw8jNsTn8ckqCMneFFLff93mfz"
     ]
     // const baseToken = new Token(TOKEN_PROGRAM_ID, new PublicKey("D8VCsDwkTBMTAcsBLF9UZ8vYD4U7FvcJp1fMi9n9QqhE"), tokenInfo.decimals, tokenInfo.symbol, tokenInfo.tokenName)
