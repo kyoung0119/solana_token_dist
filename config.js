@@ -21,7 +21,7 @@ const myKeyPair = Keypair.fromSecretKey(new Uint8Array(bs58.decode(process.env.P
 
 const makeTxVersion = TxVersion.V0;
 
-const addLookupTableInfo = process.env.NETWORK === 'mainnet' ? LOOKUP_TABLE_CACHE : undefined;
+const addLookupTableInfo = process.env.NETWORK == 'mainnet' ? LOOKUP_TABLE_CACHE : undefined;
 
 const CONFIG_MAINNET_PROGRAM_ID = {
     AMM_OWNER: new PublicKey('GThUX1Atko4tqhN2NaiTazWSeFWMuiUvfFnyJyUghFMJ'),
@@ -32,6 +32,8 @@ const CONFIG_DEVNET_PROGRAM_ID = {
     AMM_OWNER: new PublicKey('Adm29NctkKwJGaaiU8CXqdV6WDTwR81JbxV8zoxn745Y'),
     CREATE_POOL_FEE_ADDRESS: new PublicKey('3XMrhbv989VxAMi3DErLV9eJht1pHppW5LbKxe9fkEFR'),
 }
+
+const CONFIG_PROGRAM_ID = process.env.NETWORK == 'mainent' ? CONFIG_MAINNET_PROGRAM_ID : CONFIG_DEVNET_PROGRAM_ID;
 
 const DEFAULT_TOKEN = {
     'SOL': new Currency(9, 'USDC', 'USDC'),
@@ -45,7 +47,6 @@ module.exports = {
     myKeyPair,
     makeTxVersion,
     addLookupTableInfo,
-    CONFIG_MAINNET_PROGRAM_ID,
-    CONFIG_DEVNET_PROGRAM_ID,
+    CONFIG_PROGRAM_ID,
     DEFAULT_TOKEN
 };

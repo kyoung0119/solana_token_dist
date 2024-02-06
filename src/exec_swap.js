@@ -11,7 +11,6 @@ const {
 } = require('@solana/web3.js')
 
 const bs58 = require('bs58')
-const assert = require("assert")
 
 const {
     connection,
@@ -26,13 +25,11 @@ const {
 } = require('./util.js')
 
 async function execSwap(input) {
-    // const myPublicKey = myKeyPair.publicKey
     const myKeyPair = Keypair.fromSecretKey(new Uint8Array(bs58.decode(input.wallet)));
     const myPublicKey = myKeyPair.publicKey
 
     // -------- pre-action: get pool info --------
     // const targetPoolInfo = await formatAmmKeysById(input.targetPool)
-    // assert(targetPoolInfo, 'cannot find the target pool')
     let targetPoolInfo;
     while (true) {
         try {
@@ -41,7 +38,6 @@ async function execSwap(input) {
                 break; // If successful, exit the loop
             }
         } catch (error) {
-            // console.error('Error occurred:', error);
             console.error('pool not found, retrying...');
         }
         await sleepTime(1000); // Wait for 1 seconds before retrying
@@ -57,7 +53,8 @@ async function execSwap(input) {
     //     slippage: input.slippage,
     // })
 
-    const minAmountOut = new TokenAmount(input.outputToken, 50000000)
+    // hard_coded
+    const minAmountOut = new TokenAmount(input.outputToken, 1)
 
     const walletTokenAccounts = await getWalletTokenAccount(connection, myPublicKey)
 
@@ -101,19 +98,19 @@ async function execSwap(input) {
     // return txids;
 }
 
-function getMarketAssociatedPoolKeys(input) {
-    return Liquidity.getAssociatedPoolKeys({
-        version: 4,
-        marketVersion: 3,
-        baseMint: input.baseToken,
-        quoteMint: input.quoteToken,
-        baseDecimals: input.baseToken.decimals,
-        quoteDecimals: input.quoteToken.decimals,
-        marketId: input.targetMarketId,
-        programId: input.programId,
-        marketProgramId: input.marketProgramId,
-    })
-}
+// function getMarketAssociatedPoolKeys(input) {
+//     return Liquidity.getAssociatedPoolKeys({
+//         version: 4,
+//         marketVersion: 3,
+//         baseMint: input.baseToken,
+//         quoteMint: input.quoteToken,
+//         baseDecimals: input.baseToken.decimals,
+//         quoteDecimals: input.quoteToken.decimals,
+//         marketId: input.targetMarketId,
+//         programId: input.programId,
+//         marketProgramId: input.marketProgramId,
+//     })
+// }
 
 module.exports = {
     execSwap
