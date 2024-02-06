@@ -6,13 +6,12 @@ const {
 
 const {
     connection,
-    // DEFAULT_TOKEN,
     makeTxVersion,
 } = require('../config.js')
 const { buildAndSendTx } = require('./util')
 
 async function createMarket(input) {
-    const RAYDIUM_PROGRAM_ID = DEVNET_PROGRAM_ID
+    const RAYDIUM_PROGRAM_ID = process.env.NETWORK == 'mainnet' ? MAINNET_PROGRAM_ID : DEVNET_PROGRAM_ID
 
     // -------- step 1: make instructions --------
     const createMarketInstruments = await MarketV2.makeCreateMarketInstructionSimple({
@@ -20,8 +19,8 @@ async function createMarket(input) {
         wallet: input.wallet.publicKey,
         baseInfo: input.baseToken,
         quoteInfo: input.quoteToken,
-        lotSize: 0.1, // default 1
-        tickSize: 0.001, // default 0.01
+        lotSize: input.lotSize, // default 1
+        tickSize: input.tickSize, // default 0.01
         dexProgramId: RAYDIUM_PROGRAM_ID.OPENBOOK_MARKET,
         makeTxVersion,
     })

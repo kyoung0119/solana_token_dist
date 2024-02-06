@@ -8,8 +8,7 @@ const BN = require('bn.js');
 const {
     connection,
     makeTxVersion,
-    COFNIG_MAINNET_PROGRAM_ID,
-    CONFIG_DEVNET_PROGRAM_ID,
+    CONFIG_PROGRAM_ID,
     myKeyPair,
 } = require('../config.js')
 const {
@@ -17,11 +16,8 @@ const {
     getWalletTokenAccount,
 } = require('./util.js')
 
-require('dotenv').config()
-
 async function createPool(params) {
-    const CONFIG_PROGRAM_ID = CONFIG_DEVNET_PROGRAM_ID;
-    const RAYDIUM_PROGRAM_ID = DEVNET_PROGRAM_ID
+    const RAYDIUM_PROGRAM_ID = process.env.NETWORK == 'mainnet' ? MAINNET_PROGRAM_ID : DEVNET_PROGRAM_ID
 
     const myPublicKey = myKeyPair.publicKey
 
