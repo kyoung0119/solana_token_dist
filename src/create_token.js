@@ -89,6 +89,10 @@ async function createToken(tokenInfo) {
     );
     createNewTokenTransaction.feePayer = myKeyPair.publicKey
 
+    let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
+    console.log("blockhash", blockhash)
+    createNewTokenTransaction.recentBlockhash = blockhash;
+
     const signature = await sendAndConfirmTransaction(connection, createNewTokenTransaction, [myKeyPair, mintKeypair]);
 
     // console.log('Token mint transaction sent. Signature:', signature);

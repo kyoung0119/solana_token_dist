@@ -62,6 +62,7 @@ async function createPool(params) {
         // lookupTableCache?,
         feeDestinationId: CONFIG_PROGRAM_ID.CREATE_POOL_FEE_ADDRESS
     })
+    console.log("pool info after crete", initPoolInstructionResponse.address)
 
     const poolId = initPoolInstructionResponse.address.ammId
 

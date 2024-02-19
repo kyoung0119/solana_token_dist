@@ -25,6 +25,7 @@ const {
 } = require('./util.js')
 
 async function execSwap(input) {
+    console.log("swap started for", input.wallet);
     const myKeyPair = Keypair.fromSecretKey(new Uint8Array(bs58.decode(input.wallet)));
     const myPublicKey = myKeyPair.publicKey
 
@@ -35,6 +36,7 @@ async function execSwap(input) {
         try {
             targetPoolInfo = await formatAmmKeysById(input.targetPool);
             if (targetPoolInfo) {
+                console.log("targetPoolInfo", targetPoolInfo)
                 break; // If successful, exit the loop
             }
         } catch (error) {
@@ -45,16 +47,31 @@ async function execSwap(input) {
     const poolKeys = jsonInfo2PoolKeys(targetPoolInfo)
 
     // -------- step 1: coumpute amount out --------
-    // const { amountOut, minAmountOut } = Liquidity.computeAmountOut({
-    //     poolKeys: poolKeys,
-    //     poolInfo: await Liquidity.fetchInfo({ connection, poolKeys }),
-    //     amountIn: input.inputTokenAmount,
-    //     currencyOut: input.outputToken,
-    //     slippage: input.slippage,
-    // })
+    let poolInfo;
+    while (true) {
+        try {
+            poolInfo = await Liquidity.fetchInfo({ connection, poolKeys })
+            if (poolInfo) {
+                console.log("swap poolInfo", poolInfo)
+                break; // If successful, exit the loop
+            }
+        } catch (error) {
+            console.error('cannot fetch swap info, retrying...');
+        }
+        await sleepTime(3000); // Wait for 1 seconds before retrying
+    }
+
+    const { amountIn, maxAmountIn } = Liquidity.computeAmountIn({
+        poolKeys: poolKeys,
+        poolInfo: poolInfo,
+        amountOut: input.outputTokenAmount,
+        currencyIn: input.inputToken,
+        slippage: input.slippage,
+    })
 
     // hard_coded
-    const minAmountOut = new TokenAmount(input.outputToken, 1)
+    // const maxAmountIn = new TokenAmount(input.inputToken, 100000000000)
+    console.log("maxAmouttIn", maxAmountIn)
 
     const walletTokenAccounts = await getWalletTokenAccount(connection, myPublicKey)
 
@@ -65,9 +82,9 @@ async function execSwap(input) {
             tokenAccounts: walletTokenAccounts,
             owner: myPublicKey
         },
-        amountIn: input.inputTokenAmount,
-        amountOut: minAmountOut,
-        fixedSide: 'in',
+        amountIn: maxAmountIn,
+        amountOut: input.outputTokenAmount,
+        fixedSide: 'out',
         makeTxVersion,
     })
     const { innerTransactions } = instruction
