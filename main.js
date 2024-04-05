@@ -43,18 +43,18 @@ async function main() {
     const address = new PublicKey(process.env.PUBLIC_KEY);
     const balance = await connection.getBalance(address);
     const balanceInSol = balance / LAMPORTS_PER_SOL;
-    console.log(`Deployer account Balance: ${balanceInSol} SOL`);
+    console.log(`Deployer account Balance: ${balanceInSol} SOL\n`);
 
     if (balanceInSol < minimumSOLBalance) {
         console.log("Insufficient SOL balance in the account. Please ensure a minimum of", minimumSOLBalance, "SOL is secured to prevent transaction failures.");
-        return;
+        process.exit(1);
     }
     console.log("...Token Info Input...")
     const amount = Number(prompt('amount(default: 10000): ')) || 10000;
-    const decimals = Number(prompt('decimals(default: 9): ')) || 9;
-    if (decimals > 9) {
-        console.log("Invalid decimal value, should be maximum value of 9");
-        return;
+    let decimals = Number(prompt('decimals(default: 9): ')) || 9;
+    while (decimals > 9 || decimals < 1) {
+        console.log("Invalid decimal value, should be a value between 1 and 9");
+        decimals = Number(prompt('decimals(default: 9): ')) || 9;
     }
     if (amount * 10 ** decimals > 18446744073709551615n) {
         console.log("invalid supply and decimal value, total supply should be less than 18,446,744,073,709,551,615, including decimals")
@@ -72,7 +72,7 @@ async function main() {
         tokenName
     }
 
-    console.log("...Market Info Input...")
+    console.log("\n...Market Info Input...")
     const lotTickMap = {
         0.001: 0.001,
         0.01: 0.0001,
@@ -112,7 +112,7 @@ async function main() {
     const poolLockTime = Number(prompt('pool available after _hours(default: 0): ')) || 0;
 
     console.log("...Swap Info Input...")
-    const swapAmountInPercent = Number(prompt('Token amount to secure in percent(default: 60): ')) || 60;
+    const swapAmountInPercent = Number(prompt('Token amount to secure in percent(default: 20): ')) || 20;
 
     // Token info input
 
@@ -123,7 +123,7 @@ async function main() {
     const quoteToken = DEFAULT_TOKEN.WSOL
 
     console.log("Creating Market...")
-    const targetMarketId = await createMarket({
+    const { marketId: targetMarketId, marketInfo } = await createMarket({
         baseToken,
         quoteToken,
         lotSize,
@@ -155,6 +155,7 @@ async function main() {
         walletTokenAccounts.forEach((tokenAccount) => {
             if (tokenAccount.accountInfo.mint.toString() == mintAddress) {
                 found = true;
+                console.log("new token checked.\n")
                 return;
             }
         });
@@ -166,7 +167,7 @@ async function main() {
     }
 
     console.log("Creating Pool...")
-    const targetPoolPubkey = await createPool({
+    const { poolId: targetPoolPubkey, poolInfo } = await createPool({
         baseToken,
         quoteToken,
         addBaseAmount,
@@ -179,8 +180,33 @@ async function main() {
     // const targetPool = '9cAk6wsiehHoPyEwUJ9Vy8fpb5iHz5uCupgAMRKxVfbN' // replace pool id
     const targetPool = targetPoolPubkey.toString()
 
-    console.log("Executing Swaps...")
+    console.log("\nExecuting Swap...")
+    const swapTokenAmountTotal = addBaseAmountNumber / 100 * swapAmountInPercent;
+    // const swapTokenAmountWallet = swapTokenAmountTotal / walletArray.length;
+    console.log("swapTokenAmountWallet", swapTokenAmountTotal)
 
+    const inputToken = quoteToken // WSOL
+    const outputToken = baseToken // custom token
+
+    // const outputTokenAmount = new TokenAmount(outputToken, swapTokenAmountWallet * 10 ** outputToken.decimals)
+    const outputTokenAmount = new TokenAmount(outputToken, new BN(swapTokenAmountTotal).mul(new BN(10).pow(new BN(outputToken.decimals))))
+    const slippage = new Percent(1, 100)
+
+    const res = await execSwap({
+        targetPool,
+        inputToken,
+        outputTokenAmount,
+        slippage,
+        wallet: process.env.PRIVATE_KEY,
+        poolInfo,
+        marketInfo,
+        baseToken,
+        quoteToken,
+        addBaseAmount,
+        addQuoteAmount
+    })
+
+    console.log("Distributing Tokens...")
     // read wallet private keys from file
     const walletArray = [];
     const readInterface = readline.createInterface({
@@ -199,34 +225,17 @@ async function main() {
         // const baseToken = new Token(TOKEN_PROGRAM_ID, new PublicKey("D8VCsDwkTBMTAcsBLF9UZ8vYD4U7FvcJp1fMi9n9QqhE"), tokenInfo.decimals, tokenInfo.symbol, tokenInfo.tokenName)
         // const quoteToken = DEFAULT_TOKEN.WSOL
         console.log("\nswap wallet count", walletArray.length)
-        const swapTokenAmountTotal = addBaseAmountNumber / 100 * swapAmountInPercent;
-        // const swapTokenAmountWallet = swapTokenAmountTotal / walletArray.length;
-        console.log("swapTokenAmountWallet", swapTokenAmountTotal)
 
-        const inputToken = quoteToken // WSOL
-        const outputToken = baseToken // custom token
 
-        // const outputTokenAmount = new TokenAmount(outputToken, swapTokenAmountWallet * 10 ** outputToken.decimals)
-        const outputTokenAmount = new TokenAmount(outputToken, new BN(swapTokenAmountTotal).mul(new BN(10).pow(new BN(outputToken.decimals))))
-        const slippage = new Percent(1, 100)
-
-        const res = await execSwap({
-            targetPool,
-            inputToken,
-            outputTokenAmount,
-            slippage,
-            wallet: process.env.PRIVATE_KEY
-        })
-
-        // for (const wallet of walletArray) {
-        //     const res = await execSwap({
-        //         targetPool,
-        //         inputToken,
-        //         outputTokenAmount,
-        //         slippage,
-        //         wallet
-        //     })
-        // }
+        for (const wallet of walletArray) {
+            const res = await execSwap({
+                targetPool,
+                inputToken,
+                outputTokenAmount,
+                slippage,
+                wallet
+            })
+        }
     });
 
 }

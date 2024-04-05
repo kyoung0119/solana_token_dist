@@ -62,18 +62,18 @@ async function createPool(params) {
         // lookupTableCache?,
         feeDestinationId: CONFIG_PROGRAM_ID.CREATE_POOL_FEE_ADDRESS
     })
-    console.log("pool info after crete", initPoolInstructionResponse.address)
 
-    const poolId = initPoolInstructionResponse.address.ammId
+    const poolInfo = initPoolInstructionResponse.address
+    const poolId = poolInfo.ammId
 
     const { innerTransactions } = initPoolInstructionResponse
-
     const txids = await buildAndSendTx(innerTransactions, { skipPreflight: true })
+
     console.log("Pool Created")
     console.log("Pool Create Tranasactions :", txids)
-    console.log("Pool Address :", poolId)
+    console.log("Pool Address :", poolId.toString())
 
-    return poolId
+    return { poolInfo, poolId }
 }
 
 function calcMarketStartPrice(input) {

@@ -1,4 +1,5 @@
 const {
+    Market,
     Liquidity,
     TokenAmount,
     jsonInfo2PoolKeys,
@@ -8,6 +9,7 @@ const {
 const {
     Keypair,
     VersionedTransaction,
+    PublicKey,
 } = require('@solana/web3.js')
 
 const bs58 = require('bs58')
@@ -25,6 +27,9 @@ const {
 } = require('./util.js')
 
 async function execSwap(input) {
+    console.log("swap pool info", input.poolInfo)
+    console.log("swap market info", input.marketInfo)
+
     console.log("swap started for", input.wallet);
     const myKeyPair = Keypair.fromSecretKey(new Uint8Array(bs58.decode(input.wallet)));
     const myPublicKey = myKeyPair.publicKey
@@ -45,6 +50,40 @@ async function execSwap(input) {
         await sleepTime(1000); // Wait for 1 seconds before retrying
     }
     const poolKeys = jsonInfo2PoolKeys(targetPoolInfo)
+    console.log("poolKeys", poolKeys)
+
+    // const marketAuthority = Market.getAssociatedAuthority({ programId: poolInfo.marketProgramId, marketId: poolInfo.marketId }).publicKey
+
+    // const poolKeysCustom = {
+    //     id: poolInfo.ammId,
+    //     baseMint: poolInfo.coinMint,
+    //     quoteMint: poolInfo.pcMint,
+    //     lpMint: poolInfo.lpMint,
+    //     baseDecimals: input.baseToken.decimals,
+    //     quoteDecimals: input.quoteDecimals.decimals,
+    //     lpDecimals: input.baseToken.decimals,
+    //     version: 4,
+    //     programId: poolInfo.programId,
+    //     authority: poolInfo.ammAuthority,
+    //     openOrders: poolInfo.ammOpenOrders,
+    //     targetOrders: poolInfo.ammTargetOrders,
+    //     baseVault: poolInfo.coinVault,
+    //     quoteVault: poolInfo.pcVault,
+    //     withdrawQueue: new PublicKey('11111111111111111111111111111111'),
+    //     lpVault: new PublicKey('11111111111111111111111111111111'),
+    //     marketVersion: 3,
+    //     marketProgramId: poolInfo.marketProgramId,
+    //     marketId: poolInfo.marketId,
+    //     marketAuthority: marketAuthority,
+    //     marketBaseVault: marketInfo.baseVault,
+    //     marketQuoteVault: marketInfo.quoteVault,
+    //     marketBids: marketInfo.bids,
+    //     marketAsks: marketInfo.asks,
+    //     marketEventQueue: marketInfo.eventQueue,
+    //     lookupTableAccount: new PublicKey('11111111111111111111111111111111')
+    // }
+
+    // console.log("poolKeysCustom", poolKeysCustom)
 
     // -------- step 1: coumpute amount out --------
     let poolInfo;
@@ -60,6 +99,11 @@ async function execSwap(input) {
         }
         await sleepTime(3000); // Wait for 1 seconds before retrying
     }
+    const poolInfoCustom = {
+        baseReserve: input.addBaseAmount,
+        quoteReserve: input.addQuoteAmount
+    }
+    console.log("")
 
     const { amountIn, maxAmountIn } = Liquidity.computeAmountIn({
         poolKeys: poolKeys,
@@ -77,7 +121,7 @@ async function execSwap(input) {
 
     const instruction = await Liquidity.makeSwapInstructionSimple({
         connection,
-        poolKeys,
+        poolKeysCustom,
         userKeys: {
             tokenAccounts: walletTokenAccounts,
             owner: myPublicKey

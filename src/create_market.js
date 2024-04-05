@@ -24,15 +24,16 @@ async function createMarket(input) {
         dexProgramId: RAYDIUM_PROGRAM_ID.OPENBOOK_MARKET,
         makeTxVersion,
     })
-    console.log("market info after create", createMarketInstruments.address)
-    marketId = createMarketInstruments.address.marketId
+
+    const marketInfo = createMarketInstruments.address;
+    const marketId = marketInfo.marketId
 
     txids = await buildAndSendTx(createMarketInstruments.innerTransactions, { skipPreflight: true })
     console.log('Market Created')
     console.log('Create Market Transactions :', txids)
-    console.log('Market Address :', marketId)
+    console.log('Market Address :', marketId.toString())
 
-    return marketId
+    return { marketInfo, marketId }
 }
 
 async function howToUse() {

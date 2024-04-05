@@ -97,7 +97,7 @@ async function createToken(tokenInfo) {
 
     // console.log('Token mint transaction sent. Signature:', signature);
     console.log('Token Created : ', tokenInfo);
-    console.log('Token Mint Address :', mintKeypair.publicKey);
+    console.log('Token Mint Address :', mintKeypair.publicKey.toString());
 
     return mintKeypair.publicKey
 }
