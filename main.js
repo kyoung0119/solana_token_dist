@@ -132,14 +132,8 @@ async function main() {
     })
 
     // create pool
-    // const addBaseAmount = new BN(addBaseAmountNumber * (10 ** tokenInfo.decimals)) // custom token
-    // const addQuoteAmount = new BN(addQuoteAmountNumber * (10 ** 9)) // WSOL
-
-    // console.log("addBaseAmount", addBaseAmount)
-    // console.log("addBaseAmount Number", addBaseAmount.toNumber())
-
-    const addBaseAmount = new BN(addBaseAmountNumber).mul(new BN(10).pow(new BN(tokenInfo.decimals)));
-    const addQuoteAmount = new BN(addQuoteAmountNumber).mul(new BN(10).pow(new BN(9)));
+    const addBaseAmount = new BN(addBaseAmountNumber).mul(new BN(10).pow(new BN(tokenInfo.decimals))); // custom token
+    const addQuoteAmount = new BN(addQuoteAmountNumber).mul(new BN(10).pow(new BN(9))); // WSOL
 
     console.log("addBaseAmount", addBaseAmount)
     console.log("addQuoteAmount", addQuoteAmount)
@@ -219,24 +213,23 @@ async function main() {
         walletArray.push(line);
     });
 
-    readInterface.on('close', async function () {
-        // file read finished
+    // readInterface.on('close', async function () {
+    //     // file read finished
 
-        // const baseToken = new Token(TOKEN_PROGRAM_ID, new PublicKey("D8VCsDwkTBMTAcsBLF9UZ8vYD4U7FvcJp1fMi9n9QqhE"), tokenInfo.decimals, tokenInfo.symbol, tokenInfo.tokenName)
-        // const quoteToken = DEFAULT_TOKEN.WSOL
-        console.log("\nswap wallet count", walletArray.length)
+    //     // const baseToken = new Token(TOKEN_PROGRAM_ID, new PublicKey("D8VCsDwkTBMTAcsBLF9UZ8vYD4U7FvcJp1fMi9n9QqhE"), tokenInfo.decimals, tokenInfo.symbol, tokenInfo.tokenName)
+    //     // const quoteToken = DEFAULT_TOKEN.WSOL
+    //     console.log("\nswap wallet count", walletArray.length)
 
-
-        for (const wallet of walletArray) {
-            const res = await execSwap({
-                targetPool,
-                inputToken,
-                outputTokenAmount,
-                slippage,
-                wallet
-            })
-        }
-    });
+    //     for (const wallet of walletArray) {
+    //         const res = await execSwap({
+    //             targetPool,
+    //             inputToken,
+    //             outputTokenAmount,
+    //             slippage,
+    //             wallet
+    //         })
+    //     }
+    // });
 
 }
 
